@@ -1,6 +1,6 @@
 # pi-mcp-bridge
 
-MCP (Model Context Protocol) bridge extension for [pi](https://github.com/earendil-works/pi-coding-agent). Connects MCP servers and registers their tools as pi custom tools.
+MCP (Model Context Protocol) bridge extension for [pi](https://pi.dev). Connects MCP servers and registers their tools as pi custom tools.
 
 ## Installation
 
