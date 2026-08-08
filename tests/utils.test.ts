@@ -1,6 +1,31 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
+describe("checkCooldown", () => {
+  it("returns false on first call (not cooling)", async () => {
+    const { checkCooldown } = await import("../utils.ts");
+    // Use unique key to avoid interaction with other tests
+    const key = `test-${Date.now()}-${Math.random()}`;
+    assert.equal(checkCooldown(key), false);
+  });
+
+  it("returns true on second call within cooldown", async () => {
+    const { checkCooldown } = await import("../utils.ts");
+    const key = `test-${Date.now()}-${Math.random()}`;
+    assert.equal(checkCooldown(key), false, "first call");
+    assert.equal(checkCooldown(key), true, "second call should be on cooldown");
+  });
+
+  it("different keys have independent cooldowns", async () => {
+    const { checkCooldown } = await import("../utils.ts");
+    const key1 = `test-a-${Date.now()}`;
+    const key2 = `test-b-${Date.now()}`;
+    assert.equal(checkCooldown(key1), false, "key1 first");
+    assert.equal(checkCooldown(key2), false, "key2 first (different key)");
+    assert.equal(checkCooldown(key1), true, "key1 second");
+  });
+});
+
 describe("expandEnvVars", () => {
   it("replaces ${VAR} with environment variable value", async () => {
     const saved = process.env.TEST_FOO;

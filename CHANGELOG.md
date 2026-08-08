@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [unreleased]
+
+### Documentation
+
+- **(changelog)** fix v1.3.3 changelog header after tagging - ([49b4239](https://github.com/timaliev/pi-mcp-bridge/commit/49b4239fc531309955b3bd5e33961646dee422a7)) - Tim Aliev
+---
+
 ## [1.3.3](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.2..v1.3.3) - 2026-08-08
 
 ### Bug Fixes

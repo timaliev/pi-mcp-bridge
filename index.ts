@@ -176,7 +176,7 @@ function jsonSchemaToTypeBox(schema: Record<string, unknown>, rootDescription?: 
 // Version check
 // ---------------------------------------------------------------------------
 
-import { parseSemver, isNewer } from "./utils.js";
+import { parseSemver, isNewer, fetchLatestRelease, checkCooldown } from "./utils.js";
 
 async function getInstalledVersion(command: string): Promise<string | null> {
   try {
@@ -191,21 +191,6 @@ async function getInstalledVersion(command: string): Promise<string | null> {
   }
 }
 
-async function fetchLatestRelease(githubRepo: string): Promise<{ version: string } | null> {
-  try {
-    const url = `https://api.github.com/repos/${githubRepo}/releases/latest`;
-    const resp = await fetch(url, {
-      headers: { "Accept": "application/vnd.github+json", "User-Agent": "pi-mcp-bridge" },
-      signal: AbortSignal.timeout(5000),
-    });
-    if (!resp.ok) return null;
-    const release = await resp.json() as { tag_name: string };
-    const version = release.tag_name.replace(/^v/, "");
-    return { version };
-  } catch {
-    return null;
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Extension
@@ -230,17 +215,26 @@ export default async function (pi: ExtensionAPI) {
           let needsSetup = hasSetup;
 
           if (hasVersionCheck) {
-            const installed = await getInstalledVersion(serverConfig.versionCommand!);
-            if (installed) {
-              const latest = await fetchLatestRelease(serverConfig.githubRepo!);
-              if (latest && !isNewer(latest.version, installed)) {
-                console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} is up to date, skipping setup`);
-                needsSetup = false;
-              } else if (latest) {
-                console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} → ${latest.version}, running setup`);
-              } else {
-                console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} — can't check for updates (network/rate-limit), skipping setup`);
-                needsSetup = false;
+            const cacheKey = `vercheck:${serverConfig.githubRepo}`;
+            if (checkCooldown(cacheKey)) {
+              console.error(`[mcp-bridge] "${serverConfig.name}" — version check skipped (cooldown), skipping setup`);
+              needsSetup = false;
+            } else {
+              const installed = await getInstalledVersion(serverConfig.versionCommand!);
+              if (installed) {
+                const result = await fetchLatestRelease(serverConfig.githubRepo!);
+                if (result.version && !isNewer(result.version, installed)) {
+                  console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} is up to date, skipping setup`);
+                  needsSetup = false;
+                } else if (result.version) {
+                  console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} → ${result.version}, running setup`);
+                } else if (result.rateLimited) {
+                  console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} — GitHub rate limited, skipping setup`);
+                  needsSetup = false;
+                } else {
+                  console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} — can't check for updates (network), skipping setup`);
+                  needsSetup = false;
+                }
               }
             }
           }
