@@ -103,6 +103,39 @@ describe("loadMcpJsonConfig", () => {
     }
   });
 
+  it("parses setupCommands, githubRepo, versionCommand from mcp.json", async () => {
+    const dir = tmpdir();
+    try {
+      fs.writeFileSync(
+        path.join(dir, ".mcp.json"),
+        JSON.stringify({
+          mcpServers: {
+            ocr: {
+              command: "mcp-ocr",
+              args: [],
+              setupCommands: ["npm install -g timaliev/mcp_ocr"],
+              githubRepo: "timaliev/mcp_ocr",
+              versionCommand: "mcp-ocr --version",
+            },
+          },
+        }),
+      );
+
+      const { loadMcpJsonConfig } = await import("../config.ts");
+      const servers = loadMcpJsonConfig(dir);
+
+      assert.equal(servers.length, 1);
+      const s = servers[0];
+      assert.equal(s.name, "ocr");
+      assert.equal(s.command, "mcp-ocr");
+      assert.deepEqual(s.setupCommands, ["npm install -g timaliev/mcp_ocr"]);
+      assert.equal(s.githubRepo, "timaliev/mcp_ocr");
+      assert.equal(s.versionCommand, "mcp-ocr --version");
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it("loads from both global ~/.pi/agent/mcp.json and project .mcp.json", async () => {
     const dir = tmpdir();
     const savedAgentDir = process.env.PI_CODING_AGENT_DIR;

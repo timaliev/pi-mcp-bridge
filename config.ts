@@ -88,6 +88,18 @@ export function loadMcpJsonConfig(cwd: string): ServerConfig[] {
             args: Array.isArray(sc.args) ? (sc.args as string[]) : undefined,
             env: sc.env as Record<string, string> | undefined,
             cwd: typeof sc.cwd === "string" ? (sc.cwd as string) : undefined,
+            setupCommands:
+              Array.isArray(sc.setupCommands)
+                ? (sc.setupCommands as string[])
+                : undefined,
+            githubRepo:
+              typeof sc.githubRepo === "string"
+                ? (sc.githubRepo as string)
+                : undefined,
+            versionCommand:
+              typeof sc.versionCommand === "string"
+                ? (sc.versionCommand as string)
+                : undefined,
           });
         }
       }
