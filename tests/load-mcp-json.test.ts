@@ -8,9 +8,25 @@ function tmpdir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), "pi-mcp-bridge-test-"));
 }
 
+/** Isolate PI_CODING_AGENT_DIR to tmpdir so real ~/.pi/agent/mcp.json doesn't leak */
+function isolateAgentDir(dir: string): string | undefined {
+  const saved = process.env.PI_CODING_AGENT_DIR;
+  process.env.PI_CODING_AGENT_DIR = dir;
+  return saved;
+}
+
+function restoreAgentDir(saved: string | undefined) {
+  if (saved !== undefined) {
+    process.env.PI_CODING_AGENT_DIR = saved;
+  } else {
+    delete process.env.PI_CODING_AGENT_DIR;
+  }
+}
+
 describe("loadMcpJsonConfig", () => {
   it("parses stdio servers from mcp.json format (mcpServers map)", async () => {
     const dir = tmpdir();
+    const saved = isolateAgentDir(dir);
     try {
       fs.writeFileSync(
         path.join(dir, ".mcp.json"),
@@ -45,12 +61,14 @@ describe("loadMcpJsonConfig", () => {
       assert.deepEqual(gh.args, ["-y", "@modelcontextprotocol/server-github"]);
       assert.deepEqual(gh.env, { GITHUB_PERSONAL_ACCESS_TOKEN: "$GH_TOKEN" });
     } finally {
+      restoreAgentDir(saved);
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 
   it("parses HTTP/SSE servers from mcp.json format", async () => {
     const dir = tmpdir();
+    const saved = isolateAgentDir(dir);
     try {
       fs.writeFileSync(
         path.join(dir, ".mcp.json"),
@@ -72,23 +90,27 @@ describe("loadMcpJsonConfig", () => {
       assert.equal(servers[0].url, "http://localhost:3001/sse");
       assert.deepEqual(servers[0].headers, { Authorization: "Bearer test" });
     } finally {
+      restoreAgentDir(saved);
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 
   it("returns empty array when mcp.json does not exist", async () => {
     const dir = tmpdir();
+    const saved = isolateAgentDir(dir);
     try {
       const { loadMcpJsonConfig } = await import("../config.ts");
       const servers = loadMcpJsonConfig(dir);
       assert.deepEqual(servers, []);
     } finally {
+      restoreAgentDir(saved);
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 
   it("returns empty array when mcp.json has no mcpServers key", async () => {
     const dir = tmpdir();
+    const saved = isolateAgentDir(dir);
     try {
       fs.writeFileSync(
         path.join(dir, ".mcp.json"),
@@ -99,12 +121,14 @@ describe("loadMcpJsonConfig", () => {
       const servers = loadMcpJsonConfig(dir);
       assert.deepEqual(servers, []);
     } finally {
+      restoreAgentDir(saved);
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 
   it("parses setupCommands, githubRepo, versionCommand from mcp.json", async () => {
     const dir = tmpdir();
+    const saved = isolateAgentDir(dir);
     try {
       fs.writeFileSync(
         path.join(dir, ".mcp.json"),
@@ -132,17 +156,16 @@ describe("loadMcpJsonConfig", () => {
       assert.equal(s.githubRepo, "timaliev/mcp_ocr");
       assert.equal(s.versionCommand, "mcp-ocr --version");
     } finally {
+      restoreAgentDir(saved);
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 
   it("loads from both global ~/.pi/agent/mcp.json and project .mcp.json", async () => {
     const dir = tmpdir();
-    const savedAgentDir = process.env.PI_CODING_AGENT_DIR;
+    const saved = isolateAgentDir(path.join(dir, ".pi", "agent"));
     try {
-      // Point global agent dir to our test tmpdir/.pi/agent
       const agentDir = path.join(dir, ".pi", "agent");
-      process.env.PI_CODING_AGENT_DIR = agentDir;
       fs.mkdirSync(agentDir, { recursive: true });
       fs.writeFileSync(
         path.join(agentDir, "mcp.json"),
@@ -170,11 +193,7 @@ describe("loadMcpJsonConfig", () => {
       const names = servers.map((s) => s.name).sort();
       assert.deepEqual(names, ["global", "project"]);
     } finally {
-      if (savedAgentDir !== undefined) {
-        process.env.PI_CODING_AGENT_DIR = savedAgentDir;
-      } else {
-        delete process.env.PI_CODING_AGENT_DIR;
-      }
+      restoreAgentDir(saved);
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
