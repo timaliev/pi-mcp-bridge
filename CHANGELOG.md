@@ -16,6 +16,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug Fixes
 
+- **(package)** restore missing comma and indentation in version field - ([706775b](https://github.com/timaliev/pi-mcp-bridge/commit/706775b7b45bfa0c88bb1504b7df6f46532c1fc5)) - Tim Aliev
+- **(package)** sync lockfile version to 1.3.1 - ([359adc9](https://github.com/timaliev/pi-mcp-bridge/commit/359adc957a7810c45a63a03f9634a5d837cfad0d)) - Tim Aliev
+
+### Documentation
+
+- **(changelog)** fix v1.3.1 changelog header after tagging - ([68c8b50](https://github.com/timaliev/pi-mcp-bridge/commit/68c8b50d9bce57b03344d02672c09041f0734434)) - Tim Aliev
+
+### Miscellaneous Chores
+
+- **(gitignore)** add .playwright-mcp/ to ignored files - ([48d1611](https://github.com/timaliev/pi-mcp-bridge/commit/48d161168f409523a98ce320334d69aef615b1a0)) - Tim Aliev
+---
+
+## [1.3.1](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.0..v1.3.1) - 2026-08-08
+
+### Bug Fixes
+
 - skip setup when GitHub API unreachable, not proceed blindly - ([0fc02f7](https://github.com/timaliev/pi-mcp-bridge/commit/0fc02f715566ce7e1b2fadb88ce21672aa915160)) - Tim Aliev
 ---
 
