@@ -54,11 +54,9 @@ interface ConnectedServer {
   toolNames: string[];
 }
 
-function expandEnvVars(value: string): string {
-  return value.replace(/\$\{?(\w+)\}?/g, (_, name) => process.env[name] ?? "");
-}
+import { expandEnvVars } from "./utils.js";
 
-function expandEnvInObject(obj: Record<string, string> | undefined): Record<string, string> | undefined {
+export function expandEnvInObject(obj: Record<string, string> | undefined): Record<string, string> | undefined {
   if (!obj) return obj;
   const expanded: Record<string, string> = {};
   for (const [k, v] of Object.entries(obj)) {
@@ -178,20 +176,7 @@ function jsonSchemaToTypeBox(schema: Record<string, unknown>, rootDescription?: 
 // Version check
 // ---------------------------------------------------------------------------
 
-function parseSemver(v: string): [number, number, number] | null {
-  const m = v.match(/^(\d+)\.(\d+)\.(\d+)/);
-  if (!m) return null;
-  return [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])];
-}
-
-function isNewer(latest: string, current: string): boolean {
-  const l = parseSemver(latest);
-  const c = parseSemver(current);
-  if (!l || !c) return false;
-  if (l[0] !== c[0]) return l[0] > c[0];
-  if (l[1] !== c[1]) return l[1] > c[1];
-  return l[2] > c[2];
-}
+import { parseSemver, isNewer } from "./utils.js";
 
 async function getInstalledVersion(command: string): Promise<string | null> {
   try {
@@ -210,7 +195,7 @@ async function fetchLatestRelease(githubRepo: string): Promise<{ version: string
   try {
     const url = `https://api.github.com/repos/${githubRepo}/releases/latest`;
     const resp = await fetch(url, {
-      headers: { "Accept": "application/vnd.github+json" },
+      headers: { "Accept": "application/vnd.github+json", "User-Agent": "pi-mcp-bridge" },
       signal: AbortSignal.timeout(5000),
     });
     if (!resp.ok) return null;

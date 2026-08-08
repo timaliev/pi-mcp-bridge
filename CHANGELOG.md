@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug Fixes
 
+- **(mcp)** add missing User-Agent header to GitHub API fetch - ([780f89d](https://github.com/timaliev/pi-mcp-bridge/commit/780f89dc27c15e1580b67f77a8eacbd5b8922f87)) - Tim Aliev
+
+### Documentation
+
+- **(changelog)** fix v1.3.2 changelog header after tagging - ([a3f8b0a](https://github.com/timaliev/pi-mcp-bridge/commit/a3f8b0a679b09dac18b5c9c78025665a99caaa19)) - Tim Aliev
+---
+
+## [1.3.2](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.1..v1.3.2) - 2026-08-08
+
+### Bug Fixes
+
 - **(package)** restore missing comma and indentation in version field - ([706775b](https://github.com/timaliev/pi-mcp-bridge/commit/706775b7b45bfa0c88bb1504b7df6f46532c1fc5)) - Tim Aliev
 - **(package)** sync lockfile version to 1.3.1 - ([359adc9](https://github.com/timaliev/pi-mcp-bridge/commit/359adc957a7810c45a63a03f9634a5d837cfad0d)) - Tim Aliev
 
