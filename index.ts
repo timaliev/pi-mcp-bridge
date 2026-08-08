@@ -253,6 +253,9 @@ export default async function (pi: ExtensionAPI) {
                 needsSetup = false;
               } else if (latest) {
                 console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} → ${latest.version}, running setup`);
+              } else {
+                console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} — can't check for updates (network/rate-limit), skipping setup`);
+                needsSetup = false;
               }
             }
           }
