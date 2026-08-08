@@ -41,6 +41,7 @@ import {
   isStdioConfig,
   loadConfig,
 } from "./config.js";
+import { checkForNewRelease } from "./release-monitor.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -418,6 +419,7 @@ export default async function (pi: ExtensionAPI) {
   // ---- lifecycle: connect on session_start, disconnect on session_shutdown ----
   pi.on("session_start", async (_event, ctx) => {
     await connectAll(ctx);
+    checkForNewRelease(pi.sendUserMessage.bind(pi));
   });
 
   pi.on("session_shutdown", async () => {

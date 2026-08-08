@@ -12,6 +12,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0](https://github.com/timaliev/pi-mcp-bridge/compare/v1.1.1..v1.2.0) - 2026-08-08
+
+### Features
+
+- add release monitor — checks GitHub for new versions on session_start - ([a7c63f8](https://github.com/timaliev/pi-mcp-bridge/commit/a7c63f8275248691b0e2dd8db644179f45d08f13)) - Tim Aliev
+
+### Documentation
+
+- **(readme)** add Updates section for release monitor - ([5cc562c](https://github.com/timaliev/pi-mcp-bridge/commit/5cc562c9060baa58b5b74a65cfc253ab9f0cd818)) - Tim Aliev
+
+### Tests
+
+- add release monitor tests, fix env isolation in config tests - ([58458ca](https://github.com/timaliev/pi-mcp-bridge/commit/58458caf2bdf578546977e4eb0ef3cce1c290792)) - Tim Aliev
+---
+
 ## [1.1.1](https://github.com/timaliev/pi-mcp-bridge/compare/v1.1.0..v1.1.1) - 2026-08-08
 
 ### Documentation
