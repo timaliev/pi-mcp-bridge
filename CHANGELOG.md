@@ -12,6 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0](https://github.com/timaliev/pi-mcp-bridge/compare/v1.0.0..v1.1.0) - 2026-08-08
+
+### Features
+
+- **(config)** add standard mcp.json / .mcp.json support - ([c8cbb2d](https://github.com/timaliev/pi-mcp-bridge/commit/c8cbb2d3721fa87b2f8483aab06350a7744cddf8)) - Tim Aliev
+- **(config)** parse setupCommands, githubRepo, versionCommand from mcp.json - ([ffb3f50](https://github.com/timaliev/pi-mcp-bridge/commit/ffb3f504fa00c016870413be60552ebc35d57568)) - Tim Aliev
+- per-server version check against GitHub releases, skip setup if up to date - ([66922f4](https://github.com/timaliev/pi-mcp-bridge/commit/66922f403f0cffc25be3cf6b7b7efa9145d7ffab)) - Tim Aliev
+
+### Miscellaneous Chores
+
+- add VERSION, CHANGELOG, cliff.toml, .gitignore, CONTEXT.md, development.md - ([8185120](https://github.com/timaliev/pi-mcp-bridge/commit/8185120546d4e5499de2e42ace6d72530d6d7a81)) - Tim Aliev
+---
+
 ## [1.0.0](https://github.com/timaliev/pi-mcp-bridge/releases/tag/v1.0.0) - 2026-08-06
 
 ### Documentation
