@@ -12,6 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1](https://github.com/timaliev/pi-mcp-bridge/compare/v1.1.0..v1.1.1) - 2026-08-08
+
+### Documentation
+
+- **(readme)** expand SSE transport explanation with architecture examples - ([c4b2807](https://github.com/timaliev/pi-mcp-bridge/commit/c4b28075399a5d4504439b969ad43cba76b1284f)) - Tim Aliev
+- add detailed release process steps - ([433edf9](https://github.com/timaliev/pi-mcp-bridge/commit/433edf94d215059c390452aaee4f0fc0f1f38700)) - Tim Aliev
+
+### Miscellaneous Chores
+
+- mark v1.1.0 release - ([81ab337](https://github.com/timaliev/pi-mcp-bridge/commit/81ab33765d74d3dfa77ee0339fa590c3c141475e)) - Tim Aliev
+- remove stray release marker file - ([da8bbee](https://github.com/timaliev/pi-mcp-bridge/commit/da8bbee460ae54771b337b5c4f0597abec6f6135)) - Tim Aliev
+---
+
 ## [1.1.0](https://github.com/timaliev/pi-mcp-bridge/compare/v1.0.0..v1.1.0) - 2026-08-08
 
 ### Features
