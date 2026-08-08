@@ -59,7 +59,22 @@ Uses the standard MCP config format, compatible with Claude Desktop, VS Code, et
 }
 ```
 
-### 2. Pi settings.json (pi-specific, supports setupCommands)
+**With auto-update** (supports `setupCommands`, `githubRepo`, `versionCommand`):
+```json
+{
+  "mcpServers": {
+    "ocr": {
+      "command": "mcp-ocr",
+      "args": [],
+      "setupCommands": ["uv tool install --python 3.11 git+https://github.com/timaliev/mcp_ocr.git"],
+      "githubRepo": "timaliev/mcp_ocr",
+      "versionCommand": "mcp-ocr --version"
+    }
+  }
+}
+```
+
+### 2. Pi settings.json (alternative, array format)
 
 ```json
 {
@@ -83,23 +98,82 @@ Uses the standard MCP config format, compatible with Claude Desktop, VS Code, et
 
 ### HTTP/SSE servers
 
+MCP has two transport modes:
+
+**stdio** (default) — the bridge spawns the server as a local child process.
+Best for tools that run on the same machine as pi.
+
+```
+[pi agent] ──stdin/stdout──▶ [mcp-ocr]
+   laptop                      laptop
+```
+
+**SSE over HTTP** — the bridge connects to an already-running MCP server via URL.
+Use when the server runs remotely or you want to share it across clients.
+
+**Example: remote search pipeline**
+
+SearXNG runs on a dedicated search box, `mcp-searxng` runs on an API server
+bridging the gap, and pi on your laptop talks to it over the network:
+
+```
+[pi agent] ──HTTP/SSE──▶ [mcp-searxng] ──HTTP──▶ [SearXNG]
+   laptop                  api-server             search-box
+```
+
+Config for this setup:
 ```json
 {
-  "mcpBridge": {
-    "servers": [
-      {
-        "name": "remote-server",
-        "url": "http://localhost:3001/sse"
-      }
-    ]
+  "mcpServers": {
+    "searxng": {
+      "url": "http://api-server:3001/sse"
+    }
+  }
+}
+```
+
+The `mcp-searxng` server itself is configured with `SEARXNG_URL=http://search-box:8080/searxng`.
+
+**Example: shared database tool**
+
+Team shares one MCP server connected to a Postgres instance:
+
+```
+[pi agent A] ──┐
+               ├──HTTP/SSE──▶ [mcp-db-server] ──TCP──▶ [Postgres]
+[pi agent B] ──┘
+```
+
+```json
+{
+  "mcpServers": {
+    "shared-db": {
+      "url": "http://db-team.internal:3001/sse"
+    }
   }
 }
 ```
 
 ### Environment variables
 
-Use `$VAR` or `${VAR}` syntax in `env` values — they are expanded at startup:
+Use `$VAR` or `${VAR}` syntax in `env` values — they are expanded at startup.
 
+**mcp.json:**
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_PERSONAL_ACCESS_TOKEN"
+      }
+    }
+  }
+}
+```
+
+**settings.json:**
 ```json
 {
   "mcpBridge": {
