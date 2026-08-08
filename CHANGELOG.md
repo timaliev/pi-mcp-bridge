@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [unreleased]
+
+### Bug Fixes
+
+- skip setup when GitHub API unreachable, not proceed blindly - ([0fc02f7](https://github.com/timaliev/pi-mcp-bridge/commit/0fc02f715566ce7e1b2fadb88ce21672aa915160)) - Tim Aliev
+---
+
 ## [1.2.0](https://github.com/timaliev/pi-mcp-bridge/compare/v1.1.1..v1.2.0) - 2026-08-08
 
 ### Features
