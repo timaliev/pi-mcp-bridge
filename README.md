@@ -200,6 +200,10 @@ Use `$VAR` or `${VAR}` syntax in `env` values — they are expanded at startup.
 | [mcp_pdf2md](https://github.com/timaliev/mcp_pdf2md) | PDF → Markdown conversion via pdf2md |
 | [mcp_searxng](https://github.com/timaliev/mcp_searxng) | Web search via SearXNG |
 
+## Updates
+
+The extension checks GitHub for new releases on every session start (6-hour cooldown). If a newer version is available, you'll get a notification with the upgrade command. Network failures are silent — no noise.
+
 ## License
 
 MIT
