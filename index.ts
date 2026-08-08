@@ -31,6 +31,11 @@ import type { StdioServerParameters } from "@modelcontextprotocol/sdk/client/std
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
+const execFileAsync = promisify(execFile);
+import { execSync } from "node:child_process";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -42,6 +47,12 @@ interface StdioServerConfig {
   args?: string[];
   env?: Record<string, string>;
   cwd?: string;
+  /** Shell commands to install/update the server. Only run if version check determines update needed. */
+  setupCommands?: string[];
+  /** GitHub repo (owner/name) for release version check. Required if setupCommands is set. */
+  githubRepo?: string;
+  /** Command to get installed version (e.g. "mcp-ocr --version"). If not set, version check is skipped. */
+  versionCommand?: string;
 }
 
 interface HttpServerConfig {
@@ -210,6 +221,54 @@ function jsonSchemaToTypeBox(schema: Record<string, unknown>, rootDescription?: 
 }
 
 // ---------------------------------------------------------------------------
+// Version check
+// ---------------------------------------------------------------------------
+
+function parseSemver(v: string): [number, number, number] | null {
+  const m = v.match(/^(\d+)\.(\d+)\.(\d+)/);
+  if (!m) return null;
+  return [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])];
+}
+
+function isNewer(latest: string, current: string): boolean {
+  const l = parseSemver(latest);
+  const c = parseSemver(current);
+  if (!l || !c) return false;
+  if (l[0] !== c[0]) return l[0] > c[0];
+  if (l[1] !== c[1]) return l[1] > c[1];
+  return l[2] > c[2];
+}
+
+async function getInstalledVersion(command: string): Promise<string | null> {
+  try {
+    const { stdout } = await execFileAsync("sh", ["-c", command], {
+      timeout: 10_000,
+      encoding: "utf-8",
+    });
+    const m = stdout.trim().match(/(\d+\.\d+\.\d+)/);
+    return m ? m[1] : stdout.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchLatestRelease(githubRepo: string): Promise<{ version: string } | null> {
+  try {
+    const url = `https://api.github.com/repos/${githubRepo}/releases/latest`;
+    const resp = await fetch(url, {
+      headers: { "Accept": "application/vnd.github+json" },
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!resp.ok) return null;
+    const release = await resp.json() as { tag_name: string };
+    const version = release.tag_name.replace(/^v/, "");
+    return { version };
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Extension
 // ---------------------------------------------------------------------------
 
@@ -226,6 +285,45 @@ export default async function (pi: ExtensionAPI) {
         let transport: Transport;
 
         if (isStdioConfig(serverConfig)) {
+          // Run setup commands if version is outdated
+          const hasSetup = serverConfig.setupCommands && serverConfig.setupCommands.length > 0;
+          const hasVersionCheck = hasSetup && serverConfig.githubRepo && serverConfig.versionCommand;
+          let needsSetup = hasSetup;
+
+          if (hasVersionCheck) {
+            const installed = await getInstalledVersion(serverConfig.versionCommand!);
+            if (installed) {
+              const latest = await fetchLatestRelease(serverConfig.githubRepo!);
+              if (latest && !isNewer(latest.version, installed)) {
+                console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} is up to date, skipping setup`);
+                needsSetup = false;
+              } else if (latest) {
+                console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} → ${latest.version}, running setup`);
+              }
+            }
+          }
+
+          if (needsSetup && hasSetup) {
+            const setupCwd = serverConfig.cwd ?? ctx.cwd;
+            for (const cmd of serverConfig.setupCommands!) {
+              try {
+                console.error(`[mcp-bridge] Setup "${serverConfig.name}": ${cmd}`);
+                execSync(cmd, {
+                  cwd: setupCwd,
+                  env: { ...process.env, ...expandEnvInObject(serverConfig.env) },
+                  timeout: 120_000,
+                  stdio: ["ignore", "pipe", "pipe"],
+                });
+              } catch (err) {
+                console.error(
+                  `[mcp-bridge] Setup command failed for "${serverConfig.name}": ${cmd}`,
+                  err instanceof Error ? err.message : err,
+                );
+                // Continue anyway — setup is best-effort
+              }
+            }
+          }
+
           const params: StdioServerParameters = {
             command: serverConfig.command,
             args: serverConfig.args ?? [],
