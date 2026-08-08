@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [unreleased]
+
+### Bug Fixes
+
+- **(mcp)** add missing User-Agent header to GitHub API fetch - ([780f89d](https://github.com/timaliev/pi-mcp-bridge/commit/780f89dc27c15e1580b67f77a8eacbd5b8922f87)) - Tim Aliev
+
+### Documentation
+
+- **(changelog)** fix v1.3.2 changelog header after tagging - ([a3f8b0a](https://github.com/timaliev/pi-mcp-bridge/commit/a3f8b0a679b09dac18b5c9c78025665a99caaa19)) - Tim Aliev
+---
+
 ## [1.3.2](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.1..v1.3.2) - 2026-08-08
 
 ### Bug Fixes

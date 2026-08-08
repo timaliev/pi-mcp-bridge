@@ -10,10 +10,13 @@
 
 ## Architecture
 
-- `index.ts` — single-file pi extension
-- On `session_start`: reads `mcpBridge` config, connects to each server, registers their tools
+- `index.ts` — pi extension: lifecycle hooks, MCP connect/disconnect, tool registration, JSON Schema → TypeBox
+- `config.ts` — config loading from mcp.json / .mcp.json / settings.json
+- `utils.ts` — pure utility functions: `expandEnvVars`, `parseSemver`, `isNewer`
+- `release-monitor.ts` — checks GitHub for new bridge releases on session start (6h cooldown)
+- On `session_start`: reads config, connects to each server, runs per-server version check + setup, registers tools
 - On `session_shutdown`: closes all transports
-- JSON Schema → TypeBox converter for tool parameter schemas
+- Per-server version check: compares installed version (via `versionCommand`) with latest GitHub release, skips `setupCommands` if up-to-date
 - Environment variable expansion: `$VAR` / `${VAR}` in `env` values
 
 ## Conventions
@@ -21,6 +24,6 @@
 - **Language:** TypeScript (ESM)
 - **Package manager:** npm
 - **Runtime:** pi extension system (jiti)
-- **Testing:** (to be added)
+- **Testing:** Node.js native test runner (`node --experimental-strip-types --test`)
 - **CI/CD:** GitHub Actions (to be added)
 - **Versioning:** semantic via git-cliff
