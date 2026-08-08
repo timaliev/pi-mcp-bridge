@@ -29,53 +29,28 @@ import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import type { StdioServerParameters } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import * as fs from "node:fs";
-import * as path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 import { execSync } from "node:child_process";
 
+import {
+  type ServerConfig,
+  type StdioServerConfig,
+  isStdioConfig,
+  loadConfig,
+} from "./config.js";
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-
-interface StdioServerConfig {
-  name: string;
-  command: string;
-  args?: string[];
-  env?: Record<string, string>;
-  cwd?: string;
-  /** Shell commands to install/update the server. Only run if version check determines update needed. */
-  setupCommands?: string[];
-  /** GitHub repo (owner/name) for release version check. Required if setupCommands is set. */
-  githubRepo?: string;
-  /** Command to get installed version (e.g. "mcp-ocr --version"). If not set, version check is skipped. */
-  versionCommand?: string;
-}
-
-interface HttpServerConfig {
-  name: string;
-  url: string;
-  headers?: Record<string, string>;
-}
-
-type ServerConfig = StdioServerConfig | HttpServerConfig;
-
-interface McpBridgeConfig {
-  servers: ServerConfig[];
-}
 
 interface ConnectedServer {
   config: ServerConfig;
   client: Client;
   transport: Transport;
   toolNames: string[];
-}
-
-function isStdioConfig(c: ServerConfig): c is StdioServerConfig {
-  return "command" in c;
 }
 
 function expandEnvVars(value: string): string {
@@ -89,28 +64,6 @@ function expandEnvInObject(obj: Record<string, string> | undefined): Record<stri
     expanded[k] = expandEnvVars(v);
   }
   return expanded;
-}
-
-// ---------------------------------------------------------------------------
-// Config loading
-// ---------------------------------------------------------------------------
-
-function loadConfig(): McpBridgeConfig {
-  const agentDir =
-    process.env.PI_CODING_AGENT_DIR ??
-    path.join(process.env.HOME ?? "~", ".pi", "agent");
-  const settingsPath = path.join(agentDir, "settings.json");
-
-  try {
-    if (!fs.existsSync(settingsPath)) return { servers: [] };
-    const raw = fs.readFileSync(settingsPath, "utf-8");
-    const settings = JSON.parse(raw);
-    const bridge = settings?.mcpBridge;
-    if (!bridge?.servers || !Array.isArray(bridge.servers)) return { servers: [] };
-    return { servers: bridge.servers };
-  } catch {
-    return { servers: [] };
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -277,7 +230,7 @@ export default async function (pi: ExtensionAPI) {
 
   // ---- connect to all configured MCP servers ----
   async function connectAll(ctx: { cwd: string }) {
-    const config = loadConfig();
+    const config = loadConfig(ctx.cwd);
     if (config.servers.length === 0) return;
 
     for (const serverConfig of config.servers) {

@@ -20,9 +20,46 @@ Or via pi packages in `~/.pi/agent/settings.json`:
 
 ## Configuration
 
-Add MCP servers in `~/.pi/agent/settings.json` under `mcpBridge.servers`:
+MCP servers can be configured in two ways — both are merged at startup
+(settings.json wins for same-named servers):
 
-### Stdio servers
+### 1. Standard `mcp.json` (recommended for portability)
+
+Uses the standard MCP config format, compatible with Claude Desktop, VS Code, etc.
+
+**Global** (`~/.pi/agent/mcp.json`):
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--headless"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_PERSONAL_ACCESS_TOKEN"
+      }
+    }
+  }
+}
+```
+
+**Project-local** (`.mcp.json` in project root):
+```json
+{
+  "mcpServers": {
+    "project-tool": {
+      "command": "uv",
+      "args": ["run", "my-mcp-server"],
+      "cwd": "."
+    }
+  }
+}
+```
+
+### 2. Pi settings.json (pi-specific, supports setupCommands)
 
 ```json
 {
