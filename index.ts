@@ -210,7 +210,7 @@ async function fetchLatestRelease(githubRepo: string): Promise<{ version: string
   try {
     const url = `https://api.github.com/repos/${githubRepo}/releases/latest`;
     const resp = await fetch(url, {
-      headers: { "Accept": "application/vnd.github+json" },
+      headers: { "Accept": "application/vnd.github+json", "User-Agent": "pi-mcp-bridge" },
       signal: AbortSignal.timeout(5000),
     });
     if (!resp.ok) return null;
