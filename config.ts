@@ -67,6 +67,8 @@ export function loadMcpJsonConfig(cwd: string): ServerConfig[] {
     try {
       if (!fs.existsSync(sourcePath)) continue;
       const raw = fs.readFileSync(sourcePath, "utf-8");
+      // TODO: skip empty/whitespace-only config files instead of logging parse error
+      if (raw.trim() === "") continue;
       const config = JSON.parse(raw);
       const mcpServers = config?.mcpServers;
       if (!mcpServers || typeof mcpServers !== "object") continue;
@@ -132,10 +134,12 @@ export function loadConfig(cwd: string): McpBridgeConfig {
   try {
     if (fs.existsSync(settingsPath)) {
       const raw = fs.readFileSync(settingsPath, "utf-8");
-      const settings = JSON.parse(raw);
-      const bridge = settings?.mcpBridge;
-      if (bridge?.servers && Array.isArray(bridge.servers)) {
-        settingsServers = bridge.servers;
+      if (raw.trim() !== "") {
+        const settings = JSON.parse(raw);
+        const bridge = settings?.mcpBridge;
+        if (bridge?.servers && Array.isArray(bridge.servers)) {
+          settingsServers = bridge.servers;
+        }
       }
     }
   } catch {
