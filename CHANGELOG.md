@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [unreleased]
+## [1.3.5](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.4..v1.3.5) - 2026-08-11
 
 ### Features
 
