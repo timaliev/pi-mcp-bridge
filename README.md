@@ -101,6 +101,19 @@ Uses the standard MCP config format, compatible with Claude Desktop, VS Code, et
 }
 ```
 
+**stopOnError** — skip server if any pre-exec or setup command fails (default: false):
+```json
+{
+  "mcpServers": {
+    "freecad": {
+      "command": "freecad-mcp",
+      "stopOnError": true,
+      "preExecCommands": ["freecadcmd .../blocking_bridge.py &", "sleep 5"]
+    }
+  }
+}
+```
+
 ### 2. Pi settings.json (alternative, array format)
 
 ```json
