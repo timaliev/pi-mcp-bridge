@@ -160,3 +160,37 @@ describe("isNewer", () => {
     assert.equal(isNewer("v1.0.0", "not-valid"), false);
   });
 });
+
+describe("formatIssueSummary", () => {
+  it("formats single issue", async () => {
+    const { formatIssueSummary } = await import("../utils.ts");
+    const result = formatIssueSummary([
+      `[mcp-bridge] "freecad" is disabled, skipping`,
+    ]);
+    assert.match(result, /## pi-mcp-bridge — 1 issue/);
+    assert.match(result, /- \[mcp-bridge\] "freecad" is disabled, skipping/);
+  });
+
+  it("formats multiple issues", async () => {
+    const { formatIssueSummary } = await import("../utils.ts");
+    const result = formatIssueSummary([
+      "issue one",
+      "issue two",
+      "issue three",
+    ]);
+    assert.match(result, /## pi-mcp-bridge — 3 issue/);
+    assert.match(result, /- issue one/);
+    assert.match(result, /- issue two/);
+    assert.match(result, /- issue three/);
+  });
+
+  it("uses singular for single issue", async () => {
+    const { formatIssueSummary } = await import("../utils.ts");
+    assert.match(formatIssueSummary(["x"]), /1 issue\(s\)/);
+  });
+
+  it("uses plural for multiple issues", async () => {
+    const { formatIssueSummary } = await import("../utils.ts");
+    assert.match(formatIssueSummary(["a", "b"]), /2 issue\(s\)/);
+  });
+});

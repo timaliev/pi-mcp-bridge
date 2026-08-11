@@ -14,6 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Bug Fixes
+
+- **(mcp)** move pre-exec after setup, remove post-exec - ([91261a9](https://github.com/timaliev/pi-mcp-bridge/commit/91261a99016fda7ddbf8df0fe9cd4b005db7c2a8)) - Tim Aliev
+- **(mcp)** surface issues via pi.sendUserMessage instead of console.error only - ([432ffa1](https://github.com/timaliev/pi-mcp-bridge/commit/432ffa17b7e38df214bc0bfd9f82fbde2d7a6ca6)) - Tim Aliev
+
+### Tests
+
+- **(utils)** add formatIssueSummary tests - ([4f7794d](https://github.com/timaliev/pi-mcp-bridge/commit/4f7794d11b46edcf4a81405d10762681bd767830)) - Tim Aliev
+---
+
+## [1.5.0](https://github.com/timaliev/pi-mcp-bridge/compare/v1.4.0..v1.5.0) - 2026-08-11
+
 ### Features
 
 - **(mcp)** use GITHUB_PERSONAL_ACCESS_TOKEN for GitHub API calls if set - ([84eba93](https://github.com/timaliev/pi-mcp-bridge/commit/84eba93f50f1d976051bb39277ca8901e341d843)) - Tim Aliev
@@ -21,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug Fixes
 
 - **(config)** improve JSON parse error messages with file path and error details - ([8a50dc3](https://github.com/timaliev/pi-mcp-bridge/commit/8a50dc3a4281c1f345db0e462e539040dfb8c020)) - Tim Aliev
+
+### Documentation
+
+- **(readme)** document GITHUB_PERSONAL_ACCESS_TOKEN usage for version checks - ([e3ef125](https://github.com/timaliev/pi-mcp-bridge/commit/e3ef1252ef5d3ce6def482f24bce01c47d4ffaa6)) - Tim Aliev
 ---
 
 ## [1.4.0](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.6..v1.4.0) - 2026-08-11

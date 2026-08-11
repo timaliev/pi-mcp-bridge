@@ -82,3 +82,12 @@ export function checkCooldown(key: string): boolean {
   cooldowns.set(key, now);
   return false;
 }
+
+/** Format collected issues into a user-visible summary message. */
+export function formatIssueSummary(issues: string[]): string {
+  return [
+    `## pi-mcp-bridge — ${issues.length} issue(s)`,
+    "",
+    ...issues.map((m) => `- ${m}`),
+  ].join("\n");
+}

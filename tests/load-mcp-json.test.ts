@@ -228,7 +228,7 @@ describe("loadMcpJsonConfig", () => {
     }
   });
 
-  it("parses preExecCommands and postExecCommands from mcp.json", async () => {
+  it("parses preExecCommands from mcp.json", async () => {
     const dir = tmpdir();
     const saved = isolateAgentDir(dir);
     try {
@@ -240,7 +240,6 @@ describe("loadMcpJsonConfig", () => {
               command: "tool-cmd",
               args: [],
               preExecCommands: ["echo pre1", "echo pre2"],
-              postExecCommands: ["echo post1"],
             },
           },
         }),
@@ -253,7 +252,6 @@ describe("loadMcpJsonConfig", () => {
       const s = servers[0];
       assert.equal(s.name, "tool");
       assert.deepEqual(s.preExecCommands, ["echo pre1", "echo pre2"]);
-      assert.deepEqual(s.postExecCommands, ["echo post1"]);
     } finally {
       restoreAgentDir(saved);
       fs.rmSync(dir, { recursive: true, force: true });
