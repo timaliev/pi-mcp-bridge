@@ -12,11 +12,14 @@
 
 - `index.ts` — pi extension: lifecycle hooks, MCP connect/disconnect, tool registration, JSON Schema → TypeBox
 - `config.ts` — config loading from mcp.json / .mcp.json / settings.json
-- `utils.ts` — pure utility functions: `expandEnvVars`, `parseSemver`, `isNewer`
+- `utils.ts` — pure utility functions: `expandEnvVars`, `parseSemver`, `isNewer`, `fetchLatestRelease`, `checkCooldown`
 - `release-monitor.ts` — checks GitHub for new bridge releases on session start (6h cooldown)
-- On `session_start`: reads config, connects to each server, runs per-server version check + setup, registers tools
+- On `session_start`: logs startup message (version + docs link), reads config, skips disabled servers, runs pre-exec commands, version check + setup, connects, registers tools, runs post-exec commands
 - On `session_shutdown`: closes all transports
-- Per-server version check: compares installed version (via `versionCommand`) with latest GitHub release, skips `setupCommands` if up-to-date
+- Per-server features:
+  - `disabled: true` — skip server without removing config
+  - `preExecCommands` / `postExecCommands` — run shell commands before/after server lifecycle
+  - Version check — compares installed version with latest GitHub release, skips `setupCommands` if up-to-date (1h cooldown)
 - Environment variable expansion: `$VAR` / `${VAR}` in `env` values
 
 ## Conventions
