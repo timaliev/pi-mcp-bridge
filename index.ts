@@ -216,6 +216,8 @@ export default async function (pi: ExtensionAPI) {
         let transport: Transport;
 
         if (isStdioConfig(serverConfig)) {
+          let commandFailed = false;
+
           // Run pre-exec commands
           if (serverConfig.preExecCommands && serverConfig.preExecCommands.length > 0) {
             const preCwd = serverConfig.cwd ?? ctx.cwd;
@@ -229,12 +231,19 @@ export default async function (pi: ExtensionAPI) {
                   stdio: ["ignore", "pipe", "pipe"],
                 });
               } catch (err) {
+                commandFailed = true;
                 console.error(
                   `[mcp-bridge] Pre-exec command failed for "${serverConfig.name}": ${cmd}`,
                   err instanceof Error ? err.message : err,
                 );
               }
             }
+          }
+
+          // Stop early if stopOnError and a pre-exec command failed
+          if (serverConfig.stopOnError && commandFailed) {
+            console.error(`[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`);
+            continue;
           }
 
           // Run setup commands if version is outdated
@@ -279,6 +288,7 @@ export default async function (pi: ExtensionAPI) {
                   stdio: ["ignore", "pipe", "pipe"],
                 });
               } catch (err) {
+                commandFailed = true;
                 console.error(
                   `[mcp-bridge] Setup command failed for "${serverConfig.name}": ${cmd}`,
                   err instanceof Error ? err.message : err,
@@ -286,6 +296,12 @@ export default async function (pi: ExtensionAPI) {
                 // Continue anyway — setup is best-effort
               }
             }
+          }
+
+          // Stop if stopOnError and any command (pre or setup) failed
+          if (serverConfig.stopOnError && commandFailed) {
+            console.error(`[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`);
+            continue;
           }
 
           const params: StdioServerParameters = {

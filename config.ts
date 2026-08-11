@@ -17,6 +17,7 @@ export interface StdioServerConfig {
   env?: Record<string, string>;
   cwd?: string;
   disabled?: boolean;
+  stopOnError?: boolean;
   preExecCommands?: string[];
   postExecCommands?: string[];
   setupCommands?: string[];
@@ -29,6 +30,7 @@ export interface HttpServerConfig {
   url: string;
   headers?: Record<string, string>;
   disabled?: boolean;
+  stopOnError?: boolean;
 }
 
 export type ServerConfig = StdioServerConfig | HttpServerConfig;
@@ -87,6 +89,7 @@ export function loadMcpJsonConfig(cwd: string): ServerConfig[] {
             url: sc.url as string,
             headers: sc.headers as Record<string, string> | undefined,
             disabled: typeof sc.disabled === "boolean" ? sc.disabled : undefined,
+            stopOnError: typeof sc.stopOnError === "boolean" ? sc.stopOnError : undefined,
           });
         } else if (typeof sc.command === "string") {
           servers.push({
@@ -96,6 +99,7 @@ export function loadMcpJsonConfig(cwd: string): ServerConfig[] {
             env: sc.env as Record<string, string> | undefined,
             cwd: typeof sc.cwd === "string" ? (sc.cwd as string) : undefined,
             disabled: typeof sc.disabled === "boolean" ? sc.disabled : undefined,
+            stopOnError: typeof sc.stopOnError === "boolean" ? sc.stopOnError : undefined,
             preExecCommands:
               Array.isArray(sc.preExecCommands)
                 ? (sc.preExecCommands as string[])
