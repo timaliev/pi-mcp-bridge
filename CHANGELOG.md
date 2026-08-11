@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Features
+
+- **(mcp)** add stopOnError param — disable server if any command fails - ([ba6ff1a](https://github.com/timaliev/pi-mcp-bridge/commit/ba6ff1aebf0a8a0f3742f6c3c5b251f54dbc4967)) - Tim Aliev
+
 ### Bug Fixes
 
 - **(startup)** correct package.json path for startup message - ([3fb26e5](https://github.com/timaliev/pi-mcp-bridge/commit/3fb26e5f10283daf00f13ce2f64b1ccf77ac0f51)) - Tim Aliev
