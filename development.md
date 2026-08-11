@@ -35,7 +35,7 @@ npx biome format .       # format
   - find next project version with `git-cliff --bumped-version` and remember RELEASE_VERSION_TAG (git-cliff output in 'v*.*.*' format) and actual semantic RELEASE_VERSION ('*.*.*' without 'v' in front).
   - update all documentation according to latest changes (if required) in separate branch `doc/release-$RELEASE_VERSION_TAG`, commit and merge to `develop`.
   - change version in `package.json` and `VERSION` files to $RELEASE_VERSION
-  - generate `CHANGELOG.md` with `git-cliff`
+  - generate `CHANGELOG.md` with `git-cliff --output CHANGELOG.md --bump`
   - create `release` branch from`develop`
   - commit everything to `release` branch
   - merge `release` → PR → `master`

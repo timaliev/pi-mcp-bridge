@@ -74,15 +74,14 @@ Uses the standard MCP config format, compatible with Claude Desktop, VS Code, et
 }
 ```
 
-**Pre/post exec commands** — run shell commands before setup and after tool registration:
+**Pre-exec commands** — run shell commands after setup and before connecting:
 ```json
 {
   "mcpServers": {
     "my-server": {
       "command": "npx",
       "args": ["-y", "my-mcp"],
-      "preExecCommands": ["echo 'starting server setup...'"],
-      "postExecCommands": ["echo 'server ready' "]
+      "preExecCommands": ["echo 'starting server...'"]
     }
   }
 }
