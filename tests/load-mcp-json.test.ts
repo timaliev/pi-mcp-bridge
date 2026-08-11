@@ -289,4 +289,22 @@ describe("loadMcpJsonConfig", () => {
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("handles invalid JSON gracefully — returns empty array", async () => {
+    const dir = tmpdir();
+    const saved = isolateAgentDir(dir);
+    try {
+      fs.writeFileSync(
+        path.join(dir, ".mcp.json"),
+        "{ invalid json }}}}}}}}}}}",
+      );
+
+      const { loadMcpJsonConfig } = await import("../config.ts");
+      const servers = loadMcpJsonConfig(dir);
+      assert.deepEqual(servers, []);
+    } finally {
+      restoreAgentDir(saved);
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });

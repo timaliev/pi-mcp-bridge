@@ -124,8 +124,9 @@ export function loadMcpJsonConfig(cwd: string): ServerConfig[] {
         }
       }
     } catch (err) {
+      const prefix = err instanceof SyntaxError ? "Invalid JSON in" : "Failed to load";
       console.error(
-        `[mcp-bridge] Failed to load ${sourcePath}:`,
+        `[mcp-bridge] ${prefix} ${sourcePath}:`,
         err instanceof Error ? err.message : err,
       );
     }
@@ -160,8 +161,12 @@ export function loadConfig(cwd: string): McpBridgeConfig {
         }
       }
     }
-  } catch {
-    // settings.json errors are non-fatal
+    } catch (err) {
+    const prefix = err instanceof SyntaxError ? "Invalid JSON in" : "Failed to load";
+    console.error(
+      `[mcp-bridge] ${prefix} ${settingsPath}:`,
+      err instanceof Error ? err.message : err,
+    );
   }
 
   // 3. Merge: settings.json wins over mcp.json for same-named servers
