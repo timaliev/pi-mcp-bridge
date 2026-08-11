@@ -39,8 +39,9 @@ npx biome format .       # format
   - create `release` branch from`develop`
   - commit everything to `release` branch
   - merge `release` → PR → `master`
-  - **BEFORE TAGGING MASTER** generate rel-notes with `git-cliff --unreleased --strip all --config github` command
+  - **BEFORE TAGGING MASTER** generate rel-notes with `git-cliff --unreleased --strip all` command (uses project's cliff.toml — properly filters merge commits)
     ⚠️  **CRITICAL: run this BEFORE `git tag`, NOT after. If you tag first, `--unreleased` sees zero commits and returns empty notes.**
+    ⚠️  **Do NOT use `--config github` — it dumps merge commits and unrelated changes into release notes.**
   - tag `master` branch with $RELEASE_VERSION_TAG
   - create GitHub Release with this tag and rel-notes
   - merge `master` back to `develop`
