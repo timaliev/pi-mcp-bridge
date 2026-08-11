@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Features
+
+- **(mcp)** add pre/post exec, disabled servers, startup message - ([ba01f96](https://github.com/timaliev/pi-mcp-bridge/commit/ba01f96a90318d2aadd81b05be2d43bc2eac26f6)) - Tim Aliev
+
 ### Bug Fixes
 
 - **(config)** skip empty/whitespace-only config files instead of parse error - ([337a5a1](https://github.com/timaliev/pi-mcp-bridge/commit/337a5a101238cd891f61f449190e09fe251ef512)) - Tim Aliev
