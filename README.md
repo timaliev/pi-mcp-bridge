@@ -244,6 +244,8 @@ Use `$VAR` or `${VAR}` syntax in `env` values — they are expanded at startup.
 
 The extension checks GitHub for new releases on every session start (6-hour cooldown). If a newer version is available, you'll get a notification with the upgrade command. Network failures are silent — no noise.
 
+If `GITHUB_PERSONAL_ACCESS_TOKEN` environment variable is set, it is used for all GitHub API calls (version checks + self-update), raising the rate limit from 60 to 5000 requests/hour and enabling private repo access.
+
 ## License
 
 MIT

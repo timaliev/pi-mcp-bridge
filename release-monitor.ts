@@ -75,6 +75,7 @@ function fetchLatestRelease(): Promise<{ tag_name: string } | null> {
         headers: {
           "User-Agent": `pi-mcp-bridge/${readLocalVersion() ?? "unknown"}`,
           Accept: "application/vnd.github+json",
+          ...(process.env.GITHUB_PERSONAL_ACCESS_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_PERSONAL_ACCESS_TOKEN}` } : {}),
         },
       },
       (res) => {

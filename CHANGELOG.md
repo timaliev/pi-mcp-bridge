@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Features
 
+- **(mcp)** use GITHUB_PERSONAL_ACCESS_TOKEN for GitHub API calls if set - ([84eba93](https://github.com/timaliev/pi-mcp-bridge/commit/84eba93f50f1d976051bb39277ca8901e341d843)) - Tim Aliev
+
+### Bug Fixes
+
+- **(config)** improve JSON parse error messages with file path and error details - ([8a50dc3](https://github.com/timaliev/pi-mcp-bridge/commit/8a50dc3a4281c1f345db0e462e539040dfb8c020)) - Tim Aliev
+---
+
+## [1.4.0](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.6..v1.4.0) - 2026-08-11
+
+### Features
+
 - **(mcp)** add stopOnError param — disable server if any command fails - ([ba6ff1a](https://github.com/timaliev/pi-mcp-bridge/commit/ba6ff1aebf0a8a0f3742f6c3c5b251f54dbc4967)) - Tim Aliev
 
 ### Bug Fixes
