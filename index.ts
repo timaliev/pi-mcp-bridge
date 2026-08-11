@@ -452,7 +452,7 @@ export default async function (pi: ExtensionAPI) {
     // Startup message with version and docs link
     try {
       const pkg = JSON.parse(readFileSync(
-        new URL("../package.json", import.meta.url), "utf-8"
+        new URL("./package.json", import.meta.url), "utf-8"
       ));
       console.error(`[mcp-bridge] pi-mcp-bridge v${pkg.version} — https://github.com/timaliev/pi-mcp-bridge`);
     } catch { /* ignore */ }
