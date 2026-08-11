@@ -41,6 +41,7 @@ export function fetchLatestRelease(githubRepo: string): Promise<ReleaseResult> {
         headers: {
           "User-Agent": "pi-mcp-bridge",
           Accept: "application/vnd.github+json",
+          ...(process.env.GITHUB_PERSONAL_ACCESS_TOKEN ? { Authorization: `Bearer ${process.env.GITHUB_PERSONAL_ACCESS_TOKEN}` } : {}),
         },
       },
       (res) => {
