@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [unreleased]
+
+### Bug Fixes
+
+- **(config)** skip empty/whitespace-only config files instead of parse error - ([337a5a1](https://github.com/timaliev/pi-mcp-bridge/commit/337a5a101238cd891f61f449190e09fe251ef512)) - Tim Aliev
+
+### Documentation
+
+- **(changelog)** fix v1.3.4 changelog header after tagging - ([33d7695](https://github.com/timaliev/pi-mcp-bridge/commit/33d76958548d63d702d26af16905b6340440a5b0)) - Tim Aliev
+---
+
 ## [1.3.4](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.3..v1.3.4) - 2026-08-08
 
 ### Documentation

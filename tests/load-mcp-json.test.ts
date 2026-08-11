@@ -197,4 +197,66 @@ describe("loadMcpJsonConfig", () => {
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("parses disabled flag from mcp.json", async () => {
+    const dir = tmpdir();
+    const saved = isolateAgentDir(dir);
+    try {
+      fs.writeFileSync(
+        path.join(dir, ".mcp.json"),
+        JSON.stringify({
+          mcpServers: {
+            active: { command: "active-cmd", args: [] },
+            off: { command: "off-cmd", args: [], disabled: true },
+          },
+        }),
+      );
+
+      const { loadMcpJsonConfig } = await import("../config.ts");
+      const servers = loadMcpJsonConfig(dir);
+
+      assert.equal(servers.length, 2);
+      const active = servers.find((s) => s.name === "active");
+      const off = servers.find((s) => s.name === "off");
+      assert.ok(active);
+      assert.ok(off);
+      assert.equal(active.disabled, undefined);
+      assert.equal(off.disabled, true);
+    } finally {
+      restoreAgentDir(saved);
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("parses preExecCommands and postExecCommands from mcp.json", async () => {
+    const dir = tmpdir();
+    const saved = isolateAgentDir(dir);
+    try {
+      fs.writeFileSync(
+        path.join(dir, ".mcp.json"),
+        JSON.stringify({
+          mcpServers: {
+            tool: {
+              command: "tool-cmd",
+              args: [],
+              preExecCommands: ["echo pre1", "echo pre2"],
+              postExecCommands: ["echo post1"],
+            },
+          },
+        }),
+      );
+
+      const { loadMcpJsonConfig } = await import("../config.ts");
+      const servers = loadMcpJsonConfig(dir);
+
+      assert.equal(servers.length, 1);
+      const s = servers[0];
+      assert.equal(s.name, "tool");
+      assert.deepEqual(s.preExecCommands, ["echo pre1", "echo pre2"]);
+      assert.deepEqual(s.postExecCommands, ["echo post1"]);
+    } finally {
+      restoreAgentDir(saved);
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
