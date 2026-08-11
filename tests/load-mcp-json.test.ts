@@ -259,4 +259,34 @@ describe("loadMcpJsonConfig", () => {
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  it("parses stopOnError flag from mcp.json", async () => {
+    const dir = tmpdir();
+    const saved = isolateAgentDir(dir);
+    try {
+      fs.writeFileSync(
+        path.join(dir, ".mcp.json"),
+        JSON.stringify({
+          mcpServers: {
+            strict: { command: "strict-cmd", args: [], stopOnError: true },
+            lax: { command: "lax-cmd", args: [] },
+          },
+        }),
+      );
+
+      const { loadMcpJsonConfig } = await import("../config.ts");
+      const servers = loadMcpJsonConfig(dir);
+
+      assert.equal(servers.length, 2);
+      const strict = servers.find((s) => s.name === "strict");
+      const lax = servers.find((s) => s.name === "lax");
+      assert.ok(strict);
+      assert.ok(lax);
+      assert.equal(strict.stopOnError, true);
+      assert.equal(lax.stopOnError, undefined);
+    } finally {
+      restoreAgentDir(saved);
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
