@@ -218,34 +218,6 @@ export default async function (pi: ExtensionAPI) {
         if (isStdioConfig(serverConfig)) {
           let commandFailed = false;
 
-          // Run pre-exec commands
-          if (serverConfig.preExecCommands && serverConfig.preExecCommands.length > 0) {
-            const preCwd = serverConfig.cwd ?? ctx.cwd;
-            for (const cmd of serverConfig.preExecCommands) {
-              try {
-                console.error(`[mcp-bridge] Pre-exec "${serverConfig.name}": ${cmd}`);
-                execSync(cmd, {
-                  cwd: preCwd,
-                  env: { ...process.env, ...expandEnvInObject(serverConfig.env) },
-                  timeout: 120_000,
-                  stdio: ["ignore", "pipe", "pipe"],
-                });
-              } catch (err) {
-                commandFailed = true;
-                console.error(
-                  `[mcp-bridge] Pre-exec command failed for "${serverConfig.name}": ${cmd}`,
-                  err instanceof Error ? err.message : err,
-                );
-              }
-            }
-          }
-
-          // Stop early if stopOnError and a pre-exec command failed
-          if (serverConfig.stopOnError && commandFailed) {
-            console.error(`[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`);
-            continue;
-          }
-
           // Run setup commands if version is outdated
           const hasSetup = serverConfig.setupCommands && serverConfig.setupCommands.length > 0;
           const hasVersionCheck = hasSetup && serverConfig.githubRepo && serverConfig.versionCommand;
@@ -298,7 +270,35 @@ export default async function (pi: ExtensionAPI) {
             }
           }
 
-          // Stop if stopOnError and any command (pre or setup) failed
+          // Stop if stopOnError and a setup command failed
+          if (serverConfig.stopOnError && commandFailed) {
+            console.error(`[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`);
+            continue;
+          }
+
+          // Run pre-exec commands after setup
+          if (serverConfig.preExecCommands && serverConfig.preExecCommands.length > 0) {
+            const preCwd = serverConfig.cwd ?? ctx.cwd;
+            for (const cmd of serverConfig.preExecCommands) {
+              try {
+                console.error(`[mcp-bridge] Pre-exec "${serverConfig.name}": ${cmd}`);
+                execSync(cmd, {
+                  cwd: preCwd,
+                  env: { ...process.env, ...expandEnvInObject(serverConfig.env) },
+                  timeout: 120_000,
+                  stdio: ["ignore", "pipe", "pipe"],
+                });
+              } catch (err) {
+                commandFailed = true;
+                console.error(
+                  `[mcp-bridge] Pre-exec command failed for "${serverConfig.name}": ${cmd}`,
+                  err instanceof Error ? err.message : err,
+                );
+              }
+            }
+          }
+
+          // Stop if stopOnError and any command (setup or pre-exec) failed
           if (serverConfig.stopOnError && commandFailed) {
             console.error(`[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`);
             continue;
@@ -407,27 +407,6 @@ export default async function (pi: ExtensionAPI) {
           transport,
           toolNames,
         });
-
-        // Run post-exec commands after successful tool registration
-        if (isStdioConfig(serverConfig) && serverConfig.postExecCommands && serverConfig.postExecCommands.length > 0) {
-          const postCwd = serverConfig.cwd ?? ctx.cwd;
-          for (const cmd of serverConfig.postExecCommands) {
-            try {
-              console.error(`[mcp-bridge] Post-exec "${serverConfig.name}": ${cmd}`);
-              execSync(cmd, {
-                cwd: postCwd,
-                env: { ...process.env, ...expandEnvInObject(serverConfig.env) },
-                timeout: 120_000,
-                stdio: ["ignore", "pipe", "pipe"],
-              });
-            } catch (err) {
-              console.error(
-                `[mcp-bridge] Post-exec command failed for "${serverConfig.name}": ${cmd}`,
-                err instanceof Error ? err.message : err,
-              );
-            }
-          }
-        }
 
         console.error(
           `[mcp-bridge] Connected to "${serverConfig.name}" — ${toolNames.length} tool(s): ${toolNames.join(", ")}`,

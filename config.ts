@@ -19,7 +19,6 @@ export interface StdioServerConfig {
   disabled?: boolean;
   stopOnError?: boolean;
   preExecCommands?: string[];
-  postExecCommands?: string[];
   setupCommands?: string[];
   githubRepo?: string;
   versionCommand?: string;
@@ -103,10 +102,6 @@ export function loadMcpJsonConfig(cwd: string): ServerConfig[] {
             preExecCommands:
               Array.isArray(sc.preExecCommands)
                 ? (sc.preExecCommands as string[])
-                : undefined,
-            postExecCommands:
-              Array.isArray(sc.postExecCommands)
-                ? (sc.postExecCommands as string[])
                 : undefined,
             setupCommands:
               Array.isArray(sc.setupCommands)
