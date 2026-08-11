@@ -14,6 +14,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [unreleased]
 
+### Features
+
+- **(mcp)** add stopOnError param — disable server if any command fails - ([ba6ff1a](https://github.com/timaliev/pi-mcp-bridge/commit/ba6ff1aebf0a8a0f3742f6c3c5b251f54dbc4967)) - Tim Aliev
+
+### Bug Fixes
+
+- **(startup)** correct package.json path for startup message - ([3fb26e5](https://github.com/timaliev/pi-mcp-bridge/commit/3fb26e5f10283daf00f13ce2f64b1ccf77ac0f51)) - Tim Aliev
+
+### Documentation
+
+- **(changelog)** fix v1.3.6 changelog header after tagging - ([f8bbf5a](https://github.com/timaliev/pi-mcp-bridge/commit/f8bbf5afee8f88255fc9003347f1b31d638cbfba)) - Tim Aliev
+- **(development)** add critical warning — generate rel-notes BEFORE tagging - ([a3b43b3](https://github.com/timaliev/pi-mcp-bridge/commit/a3b43b3fde7c34214c6ae79a969d9293498bc51e)) - Tim Aliev
+- **(freecad)** add setup guide for FreeCAD MCP bridge on macOS/Linux - ([4b0ac83](https://github.com/timaliev/pi-mcp-bridge/commit/4b0ac8362a17d0e895938939a403a98d524c2c4e)) - Tim Aliev
+
+### Miscellaneous Chores
+
+- **(docs)** move freecad.md to mcp_freecad project - ([6edf311](https://github.com/timaliev/pi-mcp-bridge/commit/6edf311b982526f1d0061b5deb786bee6828a764)) - Tim Aliev
+---
+
+## [1.3.6](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.5..v1.3.6) - 2026-08-11
+
 ### Documentation
 
 - **(changelog)** fix v1.3.5 changelog header after tagging - ([4b8bce3](https://github.com/timaliev/pi-mcp-bridge/commit/4b8bce3576cee36ce2a96c074d6109cdbf3e4da1)) - Tim Aliev
