@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.4](https://github.com/timaliev/pi-mcp-bridge/compare/v1.5.3..v1.5.4) - 2026-08-11
+
+### Bug Fixes
+
+- **(mcp)** propagate config parse errors to user notifications - ([fb69d7c](https://github.com/timaliev/pi-mcp-bridge/commit/fb69d7c7238c5fe9c666b167cf1a1d0d2dc0ba2e)) - Tim Aliev
+---
+
 ## [1.5.3](https://github.com/timaliev/pi-mcp-bridge/compare/v1.5.2..v1.5.3) - 2026-08-11
 
 ### Bug Fixes
