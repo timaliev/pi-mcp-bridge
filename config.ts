@@ -16,6 +16,9 @@ export interface StdioServerConfig {
   args?: string[];
   env?: Record<string, string>;
   cwd?: string;
+  disabled?: boolean;
+  preExecCommands?: string[];
+  postExecCommands?: string[];
   setupCommands?: string[];
   githubRepo?: string;
   versionCommand?: string;
@@ -25,6 +28,7 @@ export interface HttpServerConfig {
   name: string;
   url: string;
   headers?: Record<string, string>;
+  disabled?: boolean;
 }
 
 export type ServerConfig = StdioServerConfig | HttpServerConfig;
@@ -67,6 +71,8 @@ export function loadMcpJsonConfig(cwd: string): ServerConfig[] {
     try {
       if (!fs.existsSync(sourcePath)) continue;
       const raw = fs.readFileSync(sourcePath, "utf-8");
+      // TODO: skip empty/whitespace-only config files instead of logging parse error
+      if (raw.trim() === "") continue;
       const config = JSON.parse(raw);
       const mcpServers = config?.mcpServers;
       if (!mcpServers || typeof mcpServers !== "object") continue;
@@ -80,6 +86,7 @@ export function loadMcpJsonConfig(cwd: string): ServerConfig[] {
             name,
             url: sc.url as string,
             headers: sc.headers as Record<string, string> | undefined,
+            disabled: typeof sc.disabled === "boolean" ? sc.disabled : undefined,
           });
         } else if (typeof sc.command === "string") {
           servers.push({
@@ -88,6 +95,15 @@ export function loadMcpJsonConfig(cwd: string): ServerConfig[] {
             args: Array.isArray(sc.args) ? (sc.args as string[]) : undefined,
             env: sc.env as Record<string, string> | undefined,
             cwd: typeof sc.cwd === "string" ? (sc.cwd as string) : undefined,
+            disabled: typeof sc.disabled === "boolean" ? sc.disabled : undefined,
+            preExecCommands:
+              Array.isArray(sc.preExecCommands)
+                ? (sc.preExecCommands as string[])
+                : undefined,
+            postExecCommands:
+              Array.isArray(sc.postExecCommands)
+                ? (sc.postExecCommands as string[])
+                : undefined,
             setupCommands:
               Array.isArray(sc.setupCommands)
                 ? (sc.setupCommands as string[])
@@ -132,10 +148,12 @@ export function loadConfig(cwd: string): McpBridgeConfig {
   try {
     if (fs.existsSync(settingsPath)) {
       const raw = fs.readFileSync(settingsPath, "utf-8");
-      const settings = JSON.parse(raw);
-      const bridge = settings?.mcpBridge;
-      if (bridge?.servers && Array.isArray(bridge.servers)) {
-        settingsServers = bridge.servers;
+      if (raw.trim() !== "") {
+        const settings = JSON.parse(raw);
+        const bridge = settings?.mcpBridge;
+        if (bridge?.servers && Array.isArray(bridge.servers)) {
+          settingsServers = bridge.servers;
+        }
       }
     }
   } catch {

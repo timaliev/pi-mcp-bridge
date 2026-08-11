@@ -34,6 +34,7 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 
 import {
   type ServerConfig,
@@ -206,9 +207,36 @@ export default async function (pi: ExtensionAPI) {
 
     for (const serverConfig of config.servers) {
       try {
+        // Skip disabled servers
+        if (serverConfig.disabled) {
+          console.error(`[mcp-bridge] "${serverConfig.name}" is disabled, skipping`);
+          continue;
+        }
+
         let transport: Transport;
 
         if (isStdioConfig(serverConfig)) {
+          // Run pre-exec commands
+          if (serverConfig.preExecCommands && serverConfig.preExecCommands.length > 0) {
+            const preCwd = serverConfig.cwd ?? ctx.cwd;
+            for (const cmd of serverConfig.preExecCommands) {
+              try {
+                console.error(`[mcp-bridge] Pre-exec "${serverConfig.name}": ${cmd}`);
+                execSync(cmd, {
+                  cwd: preCwd,
+                  env: { ...process.env, ...expandEnvInObject(serverConfig.env) },
+                  timeout: 120_000,
+                  stdio: ["ignore", "pipe", "pipe"],
+                });
+              } catch (err) {
+                console.error(
+                  `[mcp-bridge] Pre-exec command failed for "${serverConfig.name}": ${cmd}`,
+                  err instanceof Error ? err.message : err,
+                );
+              }
+            }
+          }
+
           // Run setup commands if version is outdated
           const hasSetup = serverConfig.setupCommands && serverConfig.setupCommands.length > 0;
           const hasVersionCheck = hasSetup && serverConfig.githubRepo && serverConfig.versionCommand;
@@ -364,6 +392,27 @@ export default async function (pi: ExtensionAPI) {
           toolNames,
         });
 
+        // Run post-exec commands after successful tool registration
+        if (isStdioConfig(serverConfig) && serverConfig.postExecCommands && serverConfig.postExecCommands.length > 0) {
+          const postCwd = serverConfig.cwd ?? ctx.cwd;
+          for (const cmd of serverConfig.postExecCommands) {
+            try {
+              console.error(`[mcp-bridge] Post-exec "${serverConfig.name}": ${cmd}`);
+              execSync(cmd, {
+                cwd: postCwd,
+                env: { ...process.env, ...expandEnvInObject(serverConfig.env) },
+                timeout: 120_000,
+                stdio: ["ignore", "pipe", "pipe"],
+              });
+            } catch (err) {
+              console.error(
+                `[mcp-bridge] Post-exec command failed for "${serverConfig.name}": ${cmd}`,
+                err instanceof Error ? err.message : err,
+              );
+            }
+          }
+        }
+
         console.error(
           `[mcp-bridge] Connected to "${serverConfig.name}" — ${toolNames.length} tool(s): ${toolNames.join(", ")}`,
         );
@@ -400,6 +449,13 @@ export default async function (pi: ExtensionAPI) {
 
   // ---- lifecycle: connect on session_start, disconnect on session_shutdown ----
   pi.on("session_start", async (_event, ctx) => {
+    // Startup message with version and docs link
+    try {
+      const pkg = JSON.parse(readFileSync(
+        new URL("../package.json", import.meta.url), "utf-8"
+      ));
+      console.error(`[mcp-bridge] pi-mcp-bridge v${pkg.version} — https://github.com/timaliev/pi-mcp-bridge`);
+    } catch { /* ignore */ }
     await connectAll(ctx);
     checkForNewRelease(pi.sendUserMessage.bind(pi));
   });
