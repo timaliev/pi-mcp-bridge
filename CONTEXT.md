@@ -11,16 +11,19 @@
 ## Architecture
 
 - `index.ts` — pi extension: lifecycle hooks, MCP connect/disconnect, tool registration, JSON Schema → TypeBox
+- `schema.ts` — JSON Schema → TypeBox converter (pure, tested)
 - `config.ts` — config loading from mcp.json / .mcp.json / settings.json
-- `utils.ts` — pure utility functions: `expandEnvVars`, `parseSemver`, `isNewer`, `fetchLatestRelease`, `checkCooldown`
+- `utils.ts` — utility functions: `expandEnvVars`, `parseSemver`, `isNewer`, `fetchLatestRelease`, `checkCooldown`, `formatIssueSummary`
 - `release-monitor.ts` — checks GitHub for new bridge releases on session start (6h cooldown)
-- On `session_start`: logs startup message (version + docs link), reads config, skips disabled servers, runs pre-exec commands, version check + setup, connects, registers tools, runs post-exec commands
+- On `session_start`: logs startup message (version + docs link), reads config, skips disabled servers, runs setup commands, runs pre-exec commands, connects, registers tools
 - On `session_shutdown`: closes all transports
 - Per-server features:
   - `disabled: true` — skip server without removing config
-  - `preExecCommands` / `postExecCommands` — run shell commands before/after server lifecycle
-  - Version check — compares installed version with latest GitHub release, skips `setupCommands` if up-to-date (1h cooldown)
-- Environment variable expansion: `$VAR` / `${VAR}` in `env` values
+  - `preExecCommands` — run shell commands after setup, before connecting
+  - `stopOnError: true` — skip server if any setup or pre-exec command fails (default: false)
+  - `setupCommands` — install/update commands, run only when version outdated
+  - `githubRepo` / `versionCommand` — per-server version check with 1h cooldown
+  - `GITHUB_PERSONAL_ACCESS_TOKEN` — if set, used for all GitHub API calls (5000 req/h vs 60)
 
 ## Conventions
 

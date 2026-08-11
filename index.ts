@@ -22,6 +22,8 @@
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { jsonSchemaToTypeBox } from "./schema.js";
+
 import { Type } from "typebox";
 import type { TSchema } from "typebox";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -67,117 +69,11 @@ export function expandEnvInObject(obj: Record<string, string> | undefined): Reco
 }
 
 // ---------------------------------------------------------------------------
-// JSON Schema → TypeBox converter
-// ---------------------------------------------------------------------------
-
-function jsonSchemaToTypeBox(schema: Record<string, unknown>, rootDescription?: string): TSchema {
-  if (!schema || typeof schema !== "object") return Type.Any();
-
-  const desc = typeof schema.description === "string" ? schema.description : undefined;
-
-  // Handle const
-  if ("const" in schema) {
-    return Type.Literal(schema.const);
-  }
-
-  // Handle enum (no type field, or type: "string" with enum)
-  if (Array.isArray(schema.enum)) {
-    const literals = schema.enum.map((v) => Type.Literal(v));
-    if (literals.length === 1) return literals[0];
-    return Type.Union(literals as [TSchema, ...TSchema[]]);
-  }
-
-  // Handle $ref (basic, resolve against definitions if present)
-  if (typeof schema.$ref === "string") {
-    // For now return any — proper $ref resolution needs the full document
-    return Type.Any({ description: `$ref: ${schema.$ref}` });
-  }
-
-  // Handle oneOf / anyOf
-  if (Array.isArray(schema.oneOf) && schema.oneOf.length > 0) {
-    const options = schema.oneOf.map((s: Record<string, unknown>) =>
-      jsonSchemaToTypeBox(s),
-    );
-    return Type.Union(options as [TSchema, ...TSchema[]], desc ? { description: desc } : undefined);
-  }
-  if (Array.isArray(schema.anyOf) && schema.anyOf.length > 0) {
-    const options = schema.anyOf.map((s: Record<string, unknown>) =>
-      jsonSchemaToTypeBox(s),
-    );
-    return Type.Union(options as [TSchema, ...TSchema[]], desc ? { description: desc } : undefined);
-  }
-
-  const type = schema.type;
-
-  // Handle array
-  if (type === "array") {
-    const items = schema.items
-      ? jsonSchemaToTypeBox(schema.items as Record<string, unknown>)
-      : Type.Any();
-    const minItems =
-      typeof schema.minItems === "number" ? schema.minItems : undefined;
-    const maxItems =
-      typeof schema.maxItems === "number" ? schema.maxItems : undefined;
-    return Type.Array(items, {
-      ...(desc ? { description: desc } : {}),
-      ...(minItems !== undefined ? { minItems } : {}),
-      ...(maxItems !== undefined ? { maxItems } : {}),
-    });
-  }
-
-  // Handle object
-  if (type === "object") {
-    const properties = (schema.properties ?? {}) as Record<string, Record<string, unknown>>;
-    const required = (Array.isArray(schema.required) ? schema.required : []) as string[];
-
-    const typeBoxProps: Record<string, TSchema> = {};
-    for (const [key, propSchema] of Object.entries(properties)) {
-      const converted = jsonSchemaToTypeBox(propSchema);
-      typeBoxProps[key] = required.includes(key) ? converted : Type.Optional(converted);
-    }
-
-    const additionalProperties = schema.additionalProperties as
-      | boolean
-      | Record<string, unknown>
-      | undefined;
-    const options: Record<string, unknown> = {};
-    if (desc) options.description = desc;
-    if (additionalProperties === false) options.additionalProperties = false;
-
-    return Type.Object(typeBoxProps, options);
-  }
-
-  // Handle primitives
-  const opts = desc ? { description: desc } : {};
-
-  switch (type) {
-    case "string":
-      return Type.String(opts);
-    case "number":
-      return Type.Number(opts);
-    case "integer":
-      return Type.Number({ ...opts, description: `${desc ?? ""} (integer)`.trim() });
-    case "boolean":
-      return Type.Boolean(opts);
-    case "null":
-      return Type.Null(desc ? { description: desc } : undefined);
-    default:
-      // Try to infer from properties even without explicit type
-      if ("properties" in schema || "additionalProperties" in schema) {
-        return jsonSchemaToTypeBox({ ...schema, type: "object" });
-      }
-      if ("items" in schema) {
-        return jsonSchemaToTypeBox({ ...schema, type: "array" });
-      }
-      return Type.Any(desc ? { description: desc } : undefined);
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Version check
 // ---------------------------------------------------------------------------
 
-import { parseSemver, isNewer, fetchLatestRelease, checkCooldown, formatIssueSummary } from "./utils.js";
+import { parseSemver, isNewer, fetchLatestRelease, checkCooldown } from "./utils.js";
 
 async function getInstalledVersion(command: string): Promise<string | null> {
   try {
@@ -205,15 +101,11 @@ export default async function (pi: ExtensionAPI) {
     const config = loadConfig(ctx.cwd);
     if (config.servers.length === 0) return;
 
-    const issues: string[] = [];
-
     for (const serverConfig of config.servers) {
       try {
         // Skip disabled servers
         if (serverConfig.disabled) {
-          const msg = `[mcp-bridge] "${serverConfig.name}" is disabled, skipping`;
-          console.error(msg);
-          issues.push(msg);
+          console.error(`[mcp-bridge] "${serverConfig.name}" is disabled, skipping`);
           continue;
         }
 
@@ -230,9 +122,7 @@ export default async function (pi: ExtensionAPI) {
           if (hasVersionCheck) {
             const cacheKey = `vercheck:${serverConfig.githubRepo}`;
             if (checkCooldown(cacheKey)) {
-              const msg = `[mcp-bridge] "${serverConfig.name}" — version check skipped (cooldown), skipping setup`;
-              console.error(msg);
-              issues.push(msg);
+              console.error(`[mcp-bridge] "${serverConfig.name}" — version check skipped (cooldown), skipping setup`);
               needsSetup = false;
             } else {
               const installed = await getInstalledVersion(serverConfig.versionCommand!);
@@ -244,14 +134,10 @@ export default async function (pi: ExtensionAPI) {
                 } else if (result.version) {
                   console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} → ${result.version}, running setup`);
                 } else if (result.rateLimited) {
-                  const msg = `[mcp-bridge] "${serverConfig.name}" ${installed} — GitHub rate limited, skipping setup`;
-                  console.error(msg);
-                  issues.push(msg);
+                  console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} — GitHub rate limited, skipping setup`);
                   needsSetup = false;
                 } else {
-                  const msg = `[mcp-bridge] "${serverConfig.name}" ${installed} — can't check for updates (network), skipping setup`;
-                  console.error(msg);
-                  issues.push(msg);
+                  console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} — can't check for updates (network), skipping setup`);
                   needsSetup = false;
                 }
               }
@@ -282,9 +168,7 @@ export default async function (pi: ExtensionAPI) {
 
           // Stop if stopOnError and a setup command failed
           if (serverConfig.stopOnError && commandFailed) {
-            const msg = `[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`;
-            console.error(msg);
-            issues.push(msg);
+            console.error(`[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`);
             continue;
           }
 
@@ -312,9 +196,7 @@ export default async function (pi: ExtensionAPI) {
 
           // Stop if stopOnError and any command (setup or pre-exec) failed
           if (serverConfig.stopOnError && commandFailed) {
-            const msg = `[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`;
-            console.error(msg);
-            issues.push(msg);
+            console.error(`[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`);
             continue;
           }
 
@@ -426,15 +308,11 @@ export default async function (pi: ExtensionAPI) {
           `[mcp-bridge] Connected to "${serverConfig.name}" — ${toolNames.length} tool(s): ${toolNames.join(", ")}`,
         );
       } catch (err) {
-        const msg = `[mcp-bridge] Failed to connect to server "${serverConfig.name}": ${err instanceof Error ? err.message : err}`;
-        console.error(msg);
-        issues.push(msg);
+        console.error(
+          `[mcp-bridge] Failed to connect to server "${serverConfig.name}":`,
+          err instanceof Error ? err.message : err,
+        );
       }
-    }
-
-    // Send summary of all issues to user
-    if (issues.length > 0) {
-      pi.sendUserMessage(formatIssueSummary(issues), { deliverAs: "steer" });
     }
   }
 
@@ -467,10 +345,7 @@ export default async function (pi: ExtensionAPI) {
       const pkg = JSON.parse(readFileSync(
         new URL("./package.json", import.meta.url), "utf-8"
       ));
-      pi.sendUserMessage(
-        `[pi-mcp-bridge](https://github.com/timaliev/pi-mcp-bridge) v${pkg.version} loaded`,
-        { deliverAs: "steer" },
-      );
+      console.error(`[mcp-bridge] pi-mcp-bridge v${pkg.version} — https://github.com/timaliev/pi-mcp-bridge`);
     } catch { /* ignore */ }
     await connectAll(ctx);
     checkForNewRelease(pi.sendUserMessage.bind(pi));

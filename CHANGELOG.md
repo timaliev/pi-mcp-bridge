@@ -12,7 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [unreleased]
+## [1.5.2](https://github.com/timaliev/pi-mcp-bridge/compare/v1.5.1..v1.5.2) - 2026-08-11
+
+### Refactoring
+
+- extract schema.ts, deduplicate fetchLatestRelease, fix CONTEXT.md - ([6b62eb3](https://github.com/timaliev/pi-mcp-bridge/commit/6b62eb3de907cbd684d1a4c8df59deb49aacff5e)) - Tim Aliev
+
+### Revert
+
+- remove sendUserMessage, restore console.error for startup messages - ([6097a74](https://github.com/timaliev/pi-mcp-bridge/commit/6097a743c0d3b5dc7c6404c532d406c4e24177d7)) - Tim Aliev
+---
+
+## [1.5.1](https://github.com/timaliev/pi-mcp-bridge/compare/v1.5.0..v1.5.1) - 2026-08-11
 
 ### Bug Fixes
 
