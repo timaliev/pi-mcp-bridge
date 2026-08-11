@@ -74,6 +74,33 @@ Uses the standard MCP config format, compatible with Claude Desktop, VS Code, et
 }
 ```
 
+**Pre/post exec commands** — run shell commands before setup and after tool registration:
+```json
+{
+  "mcpServers": {
+    "my-server": {
+      "command": "npx",
+      "args": ["-y", "my-mcp"],
+      "preExecCommands": ["echo 'starting server setup...'"],
+      "postExecCommands": ["echo 'server ready' "]
+    }
+  }
+}
+```
+
+**Disabling servers** — skip a server without removing its config:
+```json
+{
+  "mcpServers": {
+    "old-tool": {
+      "command": "npx",
+      "args": ["-y", "old-mcp"],
+      "disabled": true
+    }
+  }
+}
+```
+
 ### 2. Pi settings.json (alternative, array format)
 
 ```json
