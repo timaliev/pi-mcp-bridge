@@ -12,15 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.3.8](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.7..v1.3.8) - 2026-08-11
-
-### Documentation
-
-- **(changelog)** fix v1.3.7 changelog header after tagging - ([3361919](https://github.com/timaliev/pi-mcp-bridge/commit/33619191726ec03b286601d4cdc0bfde360c88ac)) - Tim Aliev
-- **(readme)** document stopOnError param + fix release notes config - ([992ede3](https://github.com/timaliev/pi-mcp-bridge/commit/992ede3c1dcc805ecb100027a80e52af4a1299e7)) - Tim Aliev
----
-
-## [1.3.7](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.6..v1.3.7) - 2026-08-11
+## [unreleased]
 
 ### Features
 
@@ -33,8 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 - **(changelog)** fix v1.3.6 changelog header after tagging - ([f8bbf5a](https://github.com/timaliev/pi-mcp-bridge/commit/f8bbf5afee8f88255fc9003347f1b31d638cbfba)) - Tim Aliev
+- **(changelog)** fix v1.3.7 changelog header after tagging - ([3361919](https://github.com/timaliev/pi-mcp-bridge/commit/33619191726ec03b286601d4cdc0bfde360c88ac)) - Tim Aliev
+- **(changelog)** fix v1.3.8 changelog header after tagging - ([f096167](https://github.com/timaliev/pi-mcp-bridge/commit/f09616700731b133c0b3d791ce428cf52ff798a0)) - Tim Aliev
 - **(development)** add critical warning — generate rel-notes BEFORE tagging - ([a3b43b3](https://github.com/timaliev/pi-mcp-bridge/commit/a3b43b3fde7c34214c6ae79a969d9293498bc51e)) - Tim Aliev
 - **(freecad)** add setup guide for FreeCAD MCP bridge on macOS/Linux - ([4b0ac83](https://github.com/timaliev/pi-mcp-bridge/commit/4b0ac8362a17d0e895938939a403a98d524c2c4e)) - Tim Aliev
+- **(readme)** document stopOnError param + fix release notes config - ([992ede3](https://github.com/timaliev/pi-mcp-bridge/commit/992ede3c1dcc805ecb100027a80e52af4a1299e7)) - Tim Aliev
 
 ### Miscellaneous Chores
 
