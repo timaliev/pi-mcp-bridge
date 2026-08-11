@@ -12,6 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [unreleased]
+
+### Documentation
+
+- **(changelog)** fix v1.3.5 changelog header after tagging - ([4b8bce3](https://github.com/timaliev/pi-mcp-bridge/commit/4b8bce3576cee36ce2a96c074d6109cdbf3e4da1)) - Tim Aliev
+- **(readme)** document pre/post exec, disabled servers, startup message - ([331a2be](https://github.com/timaliev/pi-mcp-bridge/commit/331a2be272ebaf5eccb60f4d234db7a1d2f50b99)) - Tim Aliev
+---
+
 ## [1.3.5](https://github.com/timaliev/pi-mcp-bridge/compare/v1.3.4..v1.3.5) - 2026-08-11
 
 ### Features
