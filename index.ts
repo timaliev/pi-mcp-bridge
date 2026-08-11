@@ -205,11 +205,15 @@ export default async function (pi: ExtensionAPI) {
     const config = loadConfig(ctx.cwd);
     if (config.servers.length === 0) return;
 
+    const issues: string[] = [];
+
     for (const serverConfig of config.servers) {
       try {
         // Skip disabled servers
         if (serverConfig.disabled) {
-          console.error(`[mcp-bridge] "${serverConfig.name}" is disabled, skipping`);
+          const msg = `[mcp-bridge] "${serverConfig.name}" is disabled, skipping`;
+          console.error(msg);
+          issues.push(msg);
           continue;
         }
 
@@ -226,7 +230,9 @@ export default async function (pi: ExtensionAPI) {
           if (hasVersionCheck) {
             const cacheKey = `vercheck:${serverConfig.githubRepo}`;
             if (checkCooldown(cacheKey)) {
-              console.error(`[mcp-bridge] "${serverConfig.name}" — version check skipped (cooldown), skipping setup`);
+              const msg = `[mcp-bridge] "${serverConfig.name}" — version check skipped (cooldown), skipping setup`;
+              console.error(msg);
+              issues.push(msg);
               needsSetup = false;
             } else {
               const installed = await getInstalledVersion(serverConfig.versionCommand!);
@@ -238,10 +244,14 @@ export default async function (pi: ExtensionAPI) {
                 } else if (result.version) {
                   console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} → ${result.version}, running setup`);
                 } else if (result.rateLimited) {
-                  console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} — GitHub rate limited, skipping setup`);
+                  const msg = `[mcp-bridge] "${serverConfig.name}" ${installed} — GitHub rate limited, skipping setup`;
+                  console.error(msg);
+                  issues.push(msg);
                   needsSetup = false;
                 } else {
-                  console.error(`[mcp-bridge] "${serverConfig.name}" ${installed} — can't check for updates (network), skipping setup`);
+                  const msg = `[mcp-bridge] "${serverConfig.name}" ${installed} — can't check for updates (network), skipping setup`;
+                  console.error(msg);
+                  issues.push(msg);
                   needsSetup = false;
                 }
               }
@@ -272,7 +282,9 @@ export default async function (pi: ExtensionAPI) {
 
           // Stop if stopOnError and a setup command failed
           if (serverConfig.stopOnError && commandFailed) {
-            console.error(`[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`);
+            const msg = `[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`;
+            console.error(msg);
+            issues.push(msg);
             continue;
           }
 
@@ -300,7 +312,9 @@ export default async function (pi: ExtensionAPI) {
 
           // Stop if stopOnError and any command (setup or pre-exec) failed
           if (serverConfig.stopOnError && commandFailed) {
-            console.error(`[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`);
+            const msg = `[mcp-bridge] "${serverConfig.name}" — command failed with stopOnError set, skipping`;
+            console.error(msg);
+            issues.push(msg);
             continue;
           }
 
@@ -412,11 +426,22 @@ export default async function (pi: ExtensionAPI) {
           `[mcp-bridge] Connected to "${serverConfig.name}" — ${toolNames.length} tool(s): ${toolNames.join(", ")}`,
         );
       } catch (err) {
-        console.error(
-          `[mcp-bridge] Failed to connect to server "${serverConfig.name}":`,
-          err instanceof Error ? err.message : err,
-        );
+        const msg = `[mcp-bridge] Failed to connect to server "${serverConfig.name}": ${err instanceof Error ? err.message : err}`;
+        console.error(msg);
+        issues.push(msg);
       }
+    }
+
+    // Send summary of all issues to user
+    if (issues.length > 0) {
+      pi.sendUserMessage(
+        [
+          `## pi-mcp-bridge — ${issues.length} issue(s)`,
+          "",
+          ...issues.map((m) => `- ${m}`),
+        ].join("\n"),
+        { deliverAs: "steer" },
+      );
     }
   }
 
@@ -449,7 +474,10 @@ export default async function (pi: ExtensionAPI) {
       const pkg = JSON.parse(readFileSync(
         new URL("./package.json", import.meta.url), "utf-8"
       ));
-      console.error(`[mcp-bridge] pi-mcp-bridge v${pkg.version} — https://github.com/timaliev/pi-mcp-bridge`);
+      pi.sendUserMessage(
+        `[pi-mcp-bridge](https://github.com/timaliev/pi-mcp-bridge) v${pkg.version} loaded`,
+        { deliverAs: "steer" },
+      );
     } catch { /* ignore */ }
     await connectAll(ctx);
     checkForNewRelease(pi.sendUserMessage.bind(pi));
