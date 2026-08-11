@@ -39,6 +39,7 @@ import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
 import {
+  type McpBridgeConfig,
   type ServerConfig,
   type StdioServerConfig,
   isStdioConfig,
@@ -97,10 +98,21 @@ export default async function (pi: ExtensionAPI) {
   const connectedServers: ConnectedServer[] = [];
 
   // ---- connect to all configured MCP servers ----
-  async function connectAll(ctx: { cwd: string }) {
-    const config = loadConfig(ctx.cwd);
+  async function connectAll(ctx: { cwd: string; ui?: { notify: (msg: string, level: string) => void } }) {
+    let config: McpBridgeConfig;
+    try {
+      config = loadConfig(ctx.cwd);
+    } catch (err) {
+      const msg = err instanceof SyntaxError
+        ? `MCP config parse error: ${err.message}`
+        : `MCP config load failed: ${err instanceof Error ? err.message : err}`;
+      console.error(`[mcp-bridge] ${msg}`);
+      if (ctx.ui?.notify) ctx.ui.notify(`⚠️ ${msg}`, "error");
+      return;
+    }
     if (config.servers.length === 0) {
       console.error(`[mcp-bridge] No MCP servers configured — check mcp.json`);
+      if (ctx.ui?.notify) ctx.ui.notify(`⚠️ No MCP servers configured — check mcp.json`, "warning");
       return;
     }
 

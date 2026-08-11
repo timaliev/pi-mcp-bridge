@@ -119,9 +119,10 @@ export function loadMcpJsonConfig(cwd: string): ServerConfig[] {
         }
       }
     } catch (err) {
-      const prefix = err instanceof SyntaxError ? "Invalid JSON in" : "Failed to load";
+      // Let SyntaxError bubble up so caller can notify via ctx.ui
+      if (err instanceof SyntaxError) throw err;
       console.error(
-        `[mcp-bridge] ${prefix} ${sourcePath}:`,
+        `[mcp-bridge] Failed to load ${sourcePath}:`,
         err instanceof Error ? err.message : err,
       );
     }
@@ -157,9 +158,10 @@ export function loadConfig(cwd: string): McpBridgeConfig {
       }
     }
     } catch (err) {
-    const prefix = err instanceof SyntaxError ? "Invalid JSON in" : "Failed to load";
+    // Let SyntaxError bubble up so caller can notify via ctx.ui
+    if (err instanceof SyntaxError) throw err;
     console.error(
-      `[mcp-bridge] ${prefix} ${settingsPath}:`,
+      `[mcp-bridge] Failed to load ${settingsPath}:`,
       err instanceof Error ? err.message : err,
     );
   }
