@@ -177,7 +177,7 @@ function jsonSchemaToTypeBox(schema: Record<string, unknown>, rootDescription?: 
 // Version check
 // ---------------------------------------------------------------------------
 
-import { parseSemver, isNewer, fetchLatestRelease, checkCooldown } from "./utils.js";
+import { parseSemver, isNewer, fetchLatestRelease, checkCooldown, formatIssueSummary } from "./utils.js";
 
 async function getInstalledVersion(command: string): Promise<string | null> {
   try {
@@ -434,14 +434,7 @@ export default async function (pi: ExtensionAPI) {
 
     // Send summary of all issues to user
     if (issues.length > 0) {
-      pi.sendUserMessage(
-        [
-          `## pi-mcp-bridge — ${issues.length} issue(s)`,
-          "",
-          ...issues.map((m) => `- ${m}`),
-        ].join("\n"),
-        { deliverAs: "steer" },
-      );
+      pi.sendUserMessage(formatIssueSummary(issues), { deliverAs: "steer" });
     }
   }
 
