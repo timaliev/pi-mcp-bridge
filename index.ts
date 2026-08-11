@@ -99,7 +99,10 @@ export default async function (pi: ExtensionAPI) {
   // ---- connect to all configured MCP servers ----
   async function connectAll(ctx: { cwd: string }) {
     const config = loadConfig(ctx.cwd);
-    if (config.servers.length === 0) return;
+    if (config.servers.length === 0) {
+      console.error(`[mcp-bridge] No MCP servers configured — check mcp.json`);
+      return;
+    }
 
     for (const serverConfig of config.servers) {
       try {

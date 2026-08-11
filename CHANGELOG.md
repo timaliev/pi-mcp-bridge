@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.3](https://github.com/timaliev/pi-mcp-bridge/compare/v1.5.2..v1.5.3) - 2026-08-11
+
+### Bug Fixes
+
+- **(mcp)** log message when no servers configured - ([e273f9e](https://github.com/timaliev/pi-mcp-bridge/commit/e273f9e18b25eae975dafa9a2ba19086ff2ffd73)) - Tim Aliev
+---
+
 ## [1.5.2](https://github.com/timaliev/pi-mcp-bridge/compare/v1.5.1..v1.5.2) - 2026-08-11
 
 ### Refactoring
